@@ -1,43 +1,117 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>System Diagnostic Log</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYS_NODE_VERIFICATION</title>
     <style>
-        body { background: #1e1e1e; color: #00ff00; font-family: monospace; padding: 50px; }
-        input { background: #333; color: #fff; border: 1px solid #555; padding: 5px; }
+        /* 保持硬核、极客感的暗黑科技风 */
+        body { 
+            background-color: #121212; 
+            color: #E0E0E0; 
+            font-family: monospace; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .container { 
+            text-align: center; 
+            padding: 30px 20px; 
+            border: 1px solid #333; 
+            background: #1a1a1a; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            max-width: 320px;
+            width: 90%;
+        }
+        input { 
+            background: #222; 
+            border: 1px solid #555; 
+            color: #fff; 
+            padding: 12px; 
+            text-align: center; 
+            font-size: 16px; 
+            border-radius: 4px; 
+            margin-top: 15px; 
+            width: 80%;
+            outline: none; 
+            box-sizing: border-box;
+        }
+        input:focus { 
+            border-color: #DAA520; /* 聚焦时金色边框 */
+        } 
+        /* 新增的确认按钮样式，契合杯垫的金色激光雕刻质感 */
+        .btn-submit { 
+            background: #DAA520; 
+            border: none; 
+            color: #121212; 
+            padding: 12px; 
+            margin-top: 15px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-family: monospace;
+            font-size: 16px;
+            border-radius: 4px; 
+            width: 80%;
+            transition: background 0.2s;
+        }
+        .btn-submit:active {
+            background: #B8860B; /* 手机点击时的深色反馈 */
+        }
+        .error { 
+            color: #ff5555; 
+            margin-top: 15px; 
+            font-size: 13px; 
+            display: none; 
+        }
     </style>
 </head>
 <body>
+
+<div class="container" id="app">
     <div id="console">
-        <p>[INFO] Entering secure shell node...</p>
-        <p>[AUTH] Please enter the private decryption key to cluster:</p>
-        <!-- 伪装成输入授权Token -->
-        <input type="password" id="secret-key" placeholder="Enter Token..." onkeypress="handleKeyPress(event)">
-    </div>
-    <div id="player-container" style="display:none; margin-top: 20px;">
-        <p>[SUCCESS] Terminal decrypted. Stream playing...</p>
-        <!-- 正确后才动态加载音频 -->
-        <audio id="secret-audio" controls></audio>
+        <h3>🔑 ACCESS DENIED</h3>
+        <p>ENTER DECRYPTION KEY TO CONNECT NODE</p>
+        <input type="password" id="secret-key" pattern="[0-9]*" placeholder="输入密码..."><br>
+        <button class="btn-submit" onclick="verifyKey()">CONNECT NODE</button>
+        <p class="error" id="errorMsg">⚠ INVALID TOKEN. PERMISSION DENIED.</p>
     </div>
 
-    <script>
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') {
-                const key = document.getElementById('secret-key').value;
-                // 假设你们确认关系的日期是 0324，或者你们的某个私密暗号
-                if (key === '0324') { 
-                    document.getElementById('console').style.display = 'none';
-                    const audio = document.getElementById('secret-audio');
-                    // 动态注入隐藏的录音URL
-                    audio.src = 'https://sunnyren.github.io/react-native-dependency-patch/telemetry-logs.m4a'; 
-                    document.getElementById('player-container').style.display = 'block';
-                    audio.play();
-                } else {
-                    alert('[ERROR] Invalid Access Token. Permission Denied.');
-                }
-            }
+    <div id="player-container" style="display: none;">
+        <h3 style="color: #DAA520;">🔓 NODE CONNECTED</h3>
+        <p>PLAYING TELEMETRY LOGS...</p>
+        <div style="margin-top: 25px; font-size: 14px; color: #888;">🎵 SECURE AUDIO STREAMING...</div>
+        <audio id="secret-audio" controls style="margin-top: 20px; width: 100%; display: block;"></audio>
+    </div>
+</div>
+
+<script>
+    function verifyKey() {
+        const key = document.getElementById('secret-key').value;
+        const errorMsg = document.getElementById('errorMsg');
+        
+        // 你的专属暗号密码
+        if (key === '0324') { 
+            errorMsg.style.display = 'none';
+            document.getElementById('console').style.display = 'none';
+            
+            const audio = document.getElementById('secret-audio');
+            
+            // 已为你修正为 GitHub Pages 真正的文件托管直链
+            audio.src = 'https://sunnyren.github.io/react-native-dependency-patch/telemetry-logs.m4a'; 
+            
+            document.getElementById('player-container').style.display = 'block';
+            
+            // 此时由用户点击按钮触发，iOS 会大方释放权限，100% 秒开播放
+            audio.play().catch(function(error) {
+                console.log("Autoplay prevented, requires explicit gesture:", error);
+            });
+        } else {
+            errorMsg.style.display = 'block';
         }
-    </script>
+    }
+</script>
 </body>
 </html>
