@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head><title>音频加密工具</title></head>
+<body>
+    <h2>🔐 本地音频加密工具（全本地运行，不上传任何服务器）</h2>
+    <input type="file" id="audioFile" accept="audio/*"><br><br>
+    <input type="text" id="password" placeholder="设置解密密码（如 0324）"><br><br>
+    <button onclick="encrypt()">开始加密并下载</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        async function encrypt() {
+            const fileInput = document.getElementById('audioFile');
+            const password = document.getElementById('password').value;
+            if (!fileInput.files.length || !password) return alert('请选择文件并输入密码');
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                // 1. 将音频转为 Base64 字符串
+                const base64Str = e.target.result.split(',')[1];
+                // 2. 用你的密码进行 AES 加密
+                const encrypted = CryptoJS.AES.encrypt(base64Str, password).toString();
+                
+                // 3. 导出为加密后的文本文件
+                const blob = new Blob([encrypted], {type: 'text/plain'});
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'telemetry-data.enc'; // 崭新的加密后缀
+                a.click();
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
