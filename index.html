@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>System Diagnostic Log</title>
+    <style>
+        body { background: #1e1e1e; color: #00ff00; font-family: monospace; padding: 50px; }
+        input { background: #333; color: #fff; border: 1px solid #555; padding: 5px; }
+    </style>
+</head>
+<body>
+    <div id="console">
+        <p>[INFO] Entering secure shell node...</p>
+        <p>[AUTH] Please enter the private decryption key to cluster:</p>
+        <!-- 伪装成输入授权Token -->
+        <input type="password" id="secret-key" placeholder="Enter Token..." onkeypress="handleKeyPress(event)">
+    </div>
+    <div id="player-container" style="display:none; margin-top: 20px;">
+        <p>[SUCCESS] Terminal decrypted. Stream playing...</p>
+        <!-- 正确后才动态加载音频 -->
+        <audio id="secret-audio" controls></audio>
+    </div>
+
+    <script>
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                const key = document.getElementById('secret-key').value;
+                // 假设你们确认关系的日期是 0324，或者你们的某个私密暗号
+                if (key === '0324') { 
+                    document.getElementById('console').style.display = 'none';
+                    const audio = document.getElementById('secret-audio');
+                    // 动态注入隐藏的录音URL
+                    audio.src = 'https://你的托管地址/telemetry-logs.mp3'; 
+                    document.getElementById('player-container').style.display = 'block';
+                    audio.play();
+                } else {
+                    alert('[ERROR] Invalid Access Token. Permission Denied.');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
