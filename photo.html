@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYS_PHOTO_VERIFICATION</title>
+    <style>
+        body { background-color: #121212; color: #E0E0E0; font-family: monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px 0; box-sizing: border-box; }
+        .container { text-align: center; padding: 30px 20px; border: 1px solid #333; background: #1a1a1a; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); max-width: 360px; width: 90%; }
+        input { background: #222; border: 1px solid #555; color: #fff; padding: 12px; text-align: center; font-size: 16px; border-radius: 4px; margin-top: 15px; width: 80%; outline: none; box-sizing: border-box; }
+        input:focus { border-color: #DAA520; } 
+        .btn-submit { background: #DAA520; border: none; color: #121212; padding: 12px; margin-top: 15px; cursor: pointer; font-weight: bold; font-family: monospace; font-size: 16px; border-radius: 4px; width: 80%; }
+        .btn-submit:active { background: #B8860B; }
+        .error { color: #ff5555; margin-top: 15px; font-size: 13px; display: none; }
+        .status { color: #888; font-size: 12px; margin-top: 10px; min-height: 18px; }
+        .gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .gallery-grid img { width: 100%; height: 140px; object-fit: cover; border-radius: 6px; border: 1px solid #444; box-shadow: 0 2px 8px rgba(0,0,0,0.6); }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+
+<div class="container" id="app">
+    <div id="console">
+        <h3>🔑 PHOTO NODE ACCESS</h3>
+        <p>ENTER DECRYPTION KEY TO CONNECT NODE</p>
+        <input type="password" id="secret-key" pattern="[0-9]*" placeholder="输入密码..."><br>
+        <button class="btn-submit" onclick="decryptAndShow()">CONNECT NODE</button>
+        <p class="error" id="errorMsg">⚠ INVALID TOKEN. PERMISSION DENIED.</p>
+        <p class="status" id="statusMsg"></p>
+    </div>
+
+    <div id="gallery-container" style="display: none;">
+        <h3 style="color: #DAA520;">🔓 PHOTO NODE CONNECTED</h3>
+        <p style="font-size: 12px; color: #aaa;">DECRYPTED MEMORY NODES [4/4]</p>
+        <div class="gallery-grid" id="photo-wall"></div>
+    </div>
+</div>
+
+<script>
+    async function decryptAndShow() {
+        const key = document.getElementById('secret-key').value;
+        const errorMsg = document.getElementById('errorMsg');
+        const statusMsg = document.getElementById('statusMsg');
+        
+        statusMsg.innerText = "正在建立安全连接...";
+        errorMsg.style.display = 'none';
+
+        try {
+            const cacheBuster = '?t=' + new Date().getTime();
+            const response = await fetch('https://sunnyren.github.io/react-native-dependency-patch/gallery-data.enc' + cacheBuster);
+            
+            if (!response.ok) throw new Error('无法获取加密节点');
+            const cipherText = await response.text();
+
+            statusMsg.innerText = "正在解密影像数据流...";
+            
+            const decryptedBytes = CryptoJS.AES.decrypt(cipherText, key);
+            const jsonResult = decryptedBytes.toString(CryptoJS.enc.Utf8);
+
+            if (!jsonResult) throw new Error('解密失败');
+            const images = JSON.parse(jsonResult);
+
+            const photoWall = document.getElementById('photo-wall');
+            photoWall.innerHTML = '';
+            images.forEach(imgBase64 => {
+                const img = document.createElement('img');
+                img.src = imgBase64;
+                photoWall.appendChild(img);
+            });
+
+            statusMsg.innerText = "";
+            document.getElementById('console').style.display = 'none';
+            document.getElementById('gallery-container').style.display = 'block';
+
+        } catch (error) {
+            console.error(error);
+            statusMsg.innerText = "";
+            errorMsg.style.display = 'block';
+        }
+    }
+</script>
+</body>
+</html>
