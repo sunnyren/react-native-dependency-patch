@@ -60,7 +60,7 @@
         .status { color: #888; font-size: 12px; margin-top: 10px; min-height: 18px; }
 
         .text-container {
-            text-align: left !important; /* 强制左对齐 */
+            text-align: left !important;
             margin-top: 20px;
             padding: 18px;
             background: #0d0d0d;
@@ -72,6 +72,13 @@
             min-height: 120px;
             white-space: pre-wrap;
             word-break: break-word;
+        }
+        /* 强制打字容器里的内容顶格靠左 */
+        #typed-text {
+            display: inline;
+            text-align: left;
+            margin: 0;
+            padding: 0;
         }
         .cursor {
             display: inline-block;
@@ -105,9 +112,7 @@
         <h3 style="color: #DAA520; margin-bottom: 5px;">🔓 TEXT NODE CONNECTED</h3>
         <p style="font-size: 12px; color: #888; margin-top: 0;">DECRYPTING MEMORY STREAM...</p>
         
-        <div class="text-container">
-            <span id="typed-text"></span><span class="cursor" id="cursor"></span>
-        </div>
+        <div class="text-container"><span id="typed-text"></span><span class="cursor" id="cursor"></span></div>
     </div>
 </div>
 
@@ -167,17 +172,15 @@
 
             statusMsg.innerText = "正在解密文字数据流...";
             
-            const decryptedBytes = CryptoJS.AES.decrypt(cipherText, key);
+            const decryptedBytes = CryptoJS.AES.decrypt(cipherText.trim(), key);
             let decryptedPayload = decryptedBytes.toString(CryptoJS.enc.Utf8);
 
             if (!decryptedPayload) throw new Error('解密失败');
 
-            // 去除最前端多余的换行和空格
-            decryptedPayload = decryptedPayload.trim();
-
             const parts = decryptedPayload.split('|DATE_SPLIT|');
             const dates = parts[0].split(',');
-            let letterContent = parts[1].trim();
+            // 关键逻辑：过滤掉文本最前端和末尾的所有空格、全角空格和换行
+            let letterContent = parts[1].replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
 
             // 1. 相遇至今 
             const diff1 = calcDiff(dates[0]);
@@ -185,7 +188,7 @@
                                          .replace(/{{M1}}/g, diff1.months)
                                          .replace(/{{D1}}/g, diff1.days);
 
-            // 2. 重逢至今 
+            // 2. 重逢至今
             const diff2 = calcDiff(dates[1]);
             letterContent = letterContent.replace(/{{TIME2}}/g, formatTimeStr(diff2));
 
