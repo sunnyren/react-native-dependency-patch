@@ -170,7 +170,7 @@
             if (!response.ok) throw new Error('无法获取加密节点');
             const cipherText = await response.text();
 
-            statusMsg.innerText = "正在解密文字数据流...";
+            statusMsg.innerText = "正在解密文字数据流....";
             
             const decryptedBytes = CryptoJS.AES.decrypt(cipherText.trim(), key);
             let decryptedPayload = decryptedBytes.toString(CryptoJS.enc.Utf8);
